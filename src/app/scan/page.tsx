@@ -58,7 +58,7 @@ export default function WebcamBarcodeScanner() {
             } else {
               toast("No barcode detected in the current frame.");
             }
-          } catch (err) {
+          } catch {
             toast("Error detecting barcode");
           }
         };
@@ -117,7 +117,7 @@ export default function WebcamBarcodeScanner() {
                         } else {
                           toast("No barcode detected")
                         }
-                      } catch (err) {
+                      } catch {
                         toast("Error detecting barcode ")
                       }
                     };
