@@ -177,7 +177,7 @@ export default function LandingPage() {
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Simple Pricing</h2>
                 <p className="max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Choose the plan that's right for your nutritional journey
+                  Choose the plan that right for your nutritional journey
                 </p>
               </div>
             </div>
@@ -271,7 +271,7 @@ export default function LandingPage() {
                       <div>
                         <p className="font-medium">AI-Powered Nutrition Analysis</p>
                         <p className="text-sm text-muted-foreground">
-                          Receive detailed, personalized insights about your food's nutritional value with advanced AI
+                          Receive detailed, personalized insights about your foods nutritional value with advanced AI
                           that adapts to your dietary goals.
                         </p>
                       </div>

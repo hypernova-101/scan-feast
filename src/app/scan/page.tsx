@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 export default function BarcodeScanner() {
   
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [results, setResults] = useState<any>(null)
-  const [error, setError] = useState<any>(null)
+  const [results, setResults] = useState<string | null>(null)
+  const [error, setError] = useState<string>("")
 
   const startDetecting = async () => {
       try {
@@ -31,7 +31,7 @@ export default function BarcodeScanner() {
           setError("No result "+err)
         }
         
-      } catch(err) {
+      } catch {
         setError("Grant camera permission ")
 
       }
