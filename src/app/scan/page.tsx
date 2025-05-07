@@ -1,11 +1,15 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import {  useRef, useEffect } from 'react';
 import { BarcodeDetector } from 'barcode-detector/ponyfill';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { ModeToggle } from '@/components/mode-toggle';
+import { useRouter } from 'next/navigation';
 
-function WebcamBarcodeScanner() {
+export default function WebcamBarcodeScanner() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const startWebcam = async () => {
@@ -17,12 +21,12 @@ function WebcamBarcodeScanner() {
           videoRef.current.srcObject = stream;
         }
       } catch {
-        setError("Unable to access the camera. Please grant permission.");
+        toast("Unable to access the camera. Please grant permission.");
       }
     };
-
+    
     startWebcam();
-
+    
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
@@ -49,12 +53,13 @@ function WebcamBarcodeScanner() {
           try {
             const res = await barcodeDetector.detect(image);
             if (res && res.length > 0) {
-              alert(`Detected barcode: ${res[0].rawValue}`);
+              toast(`Detected barcode`)
+              router.push(`product/${res[0].rawValue}`)
             } else {
-              setError("No barcode detected in the current frame.");
+              toast("No barcode detected in the current frame.");
             }
           } catch (err) {
-            setError("Error detecting barcode: " + err);
+            toast("Error detecting barcode");
           }
         };
       }
@@ -62,114 +67,69 @@ function WebcamBarcodeScanner() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-y-4">
-      <video
-        ref={videoRef}
-        autoPlay
-        className="w-full max-h-80"
-        id="feed"
-      />
-      <Button onClick={captureFrame}>Capture Frame</Button>
-      {error && <p className="text-red-500">{error}</p>}
+    <div className='flex flex-col min-h-screen w-full items-center justify-center gap-y-4'>
+
+      <Card className="w-[350px] lg:w-[500px]">
+        <CardContent>
+          <CardHeader>
+            <CardTitle className='text-2xl flex flex-row justify-between'>
+              <span>Scan Here</span>
+              <ModeToggle />
+            </CardTitle>
+            <CardDescription>Scan with images & live webcam feed</CardDescription>
+          </CardHeader>
+          <div className="flex flex-col items-center gap-y-4 mt-4">
+            <video
+              ref={videoRef}
+              autoPlay
+              className="w-full max-h-80 border border-background rounded-xl"
+              id="feed"
+            >
+
+            </video>
+            <div className='flex flex-row w-full justify-between items-center'>
+              <Button onClick={captureFrame}>Scan This Frame</Button>
+              <Button>
+                <label htmlFor='fileInput' className='cursor-pointer'>
+                  Upload Image
+                </label>
+              </Button>
+              <input
+                type="file"
+                id="fileInput"
+                accept="image/*"
+                max={1}
+                onChange={async (e) => {
+                  const files = e.target.files;
+                  if (files && files.length > 0) {
+                    const file = files[0];
+                    const image = new Image();
+                    image.src = URL.createObjectURL(file);
+                    image.onload = async () => {
+                      const barcodeDetector = new BarcodeDetector({
+                        formats: ['qr_code', 'ean_13', 'ean_8', 'code_39', 'code_128']
+                      })
+                      try {
+                        const res = await barcodeDetector.detect(image);
+                        if (res && res.length > 0) {
+                          toast("Barcode Detected, Redirecting...")
+                          router.push(`product/${res[0].rawValue}`)
+                        } else {
+                          toast("No barcode detected")
+                        }
+                      } catch (err) {
+                        toast("Error detecting barcode ")
+                      }
+                    };
+                  }
+                }}
+                className="border p-2 hidden"
+              />
+            </div>
+
+          </div>
+        </CardContent>
+      </Card>
     </div>
-  );
-}
-
-export default function BarcodeScanner() {
-
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [results, setResults] = useState<string | null>(null)
-  const [error, setError] = useState<string>("")
-
-  const startDetecting = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      })
-
-      videoRef.current!.srcObject = stream
-
-      
-      const barcodeDetector = new BarcodeDetector({
-        formats: ['qr_code', 'ean_13', 'ean_8', 'code_39', 'code_128']
-      })
-
-      try {
-        if (videoRef.current && videoRef.current.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-          const res = await barcodeDetector.detect(videoRef.current);
-          if (res && res.length > 0) {
-            setResults(res[0].rawValue)
-          }
-        } else {
-          throw new Error("Barcode detector not ready")
-        }
-
-
-      } catch (err) {
-        setError("No result " + err)
-      }
-
-    } catch {
-      setError("Grant camera permission ")
-
-    }
-  }
-
-  useEffect(() => {
-    if (videoRef.current) {
-      startDetecting();
-    }
-
-  }, [])
-
-  return (
-    <main className='flex flex-col flex-1 min-h-screen w-full gap-y-4 items-center justify-center'>
-
-      {/* <video
-        ref={videoRef}
-        autoPlay
-        className='w-full max-h-80'
-        id='feed'
-      >
-      </video> */}
-      <WebcamBarcodeScanner/>
-
-      <input
-        type="file"
-        accept="image/*"
-        max={1}
-        onChange={async (e) => {
-          const files = e.target.files;
-          if (files && files.length > 0) {
-            const file = files[0];
-            const image = new Image();
-            image.src = URL.createObjectURL(file);
-            image.onload = async () => {
-              const barcodeDetector = new BarcodeDetector({
-                formats: ['qr_code', 'ean_13', 'ean_8', 'code_39', 'code_128']
-              })
-              try {
-                const res = await barcodeDetector.detect(image);
-                if (res && res.length > 0) {
-                  setResults(res[0].rawValue)
-                } else {
-                  setError("No barcode detected")
-                }
-              } catch (err) {
-                setError("Error detecting barcode " + err)
-              }
-            };
-          }
-        }}
-        className="border p-2"
-      />
-      {results && <Button onClick={() => {
-        alert(results)
-
-      }}>Scanned</Button>}
-
-      {error && <p className='text-red-500'>{error}</p>}
-
-    </main>
   );
 }

@@ -17,7 +17,6 @@ import {
 } from "lucide-react"
 import { redirect } from "next/navigation"
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
-import Image from "next/image";
 
 export default function LandingPage() {
   return (
@@ -75,7 +74,7 @@ export default function LandingPage() {
                     </SignInButton>
                     </SignedOut>
                     <SignedIn>
-                      <Link href="dashboard">
+                      <Link href="/dashboard">
                         Visit Dashboard
                       </Link>
                     </SignedIn>
@@ -88,7 +87,7 @@ export default function LandingPage() {
               </div>
               <div className="flex justify-center lg:justify-end">
                 <div className="relative w-full max-w-[400px] aspect-square rounded-lg overflow-hidden shadow-xl">
-                  <Image
+                  <img
                     src="#"
                     alt="ScanFeast app interface showing food scanning"
                     className="object-cover w-full h-full"
@@ -234,6 +233,7 @@ export default function LandingPage() {
                     </li>
                   </ul>
                   <Button variant="outline" size="lg" className="mt-6">
+                    Get Started
                   </Button>
                 </div>
               </div>
