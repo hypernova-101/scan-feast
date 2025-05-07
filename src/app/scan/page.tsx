@@ -16,7 +16,7 @@ function WebcamBarcodeScanner() {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-      } catch (err) {
+      } catch {
         setError("Unable to access the camera. Please grant permission.");
       }
     };
